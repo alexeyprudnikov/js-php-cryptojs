@@ -8,15 +8,15 @@ let CryptoJS = require("crypto-js")
 class Utility {
   /**
    * encrypt with method AES-256-CBC, returns encrypted string
-   * @param {String} string
-   * @param {String} key
+   * @param {String} text
+   * @param {String} secretkey
    * @param {Boolean} raw - forces to output encrypted string as original, not for GET transfer
    * @returns {String}
   */
-  static encryptString (text, key, raw) {
-        let iv = CryptoJS.SHA256(key).toString().substring(0,16)
+  static encryptString (text, secretkey, raw) {
+        let iv = CryptoJS.SHA256(secretkey).toString().substring(0,16)
         iv = CryptoJS.enc.Utf8.parse(iv)
-        let encrypted = CryptoJS.AES.encrypt(text, key, {iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7})
+        let encrypted = CryptoJS.AES.encrypt(text, secretkey, {iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7})
         let encryptedString = encrypted.toString()
         if(raw) { return encryptedString }
         // + durch _ ersetzen wegen GET Übergabe Problem (+ als Leerzeichen vom PHP angenommen und deswegen falsch enkodiert)
@@ -25,13 +25,13 @@ class Utility {
     /**
      * decrypt with method AES-256-CBC, returns null if failed
      * @param {String} string
-     * @param {String} key
+     * @param {String} secretkey
      * @returns {String|null}
      */
-    static decryptString (string, key) {
+    static decryptString (string, secretkey) {
         string = string.replace(/_/g,'+')
-        let iv = CryptoJS.SHA256(key).toString().substring(0,16)
-        let decrypted = CryptoJS.AES.decrypt(string, key, {iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7})
+        let iv = CryptoJS.SHA256(secretkey).toString().substring(0,16)
+        let decrypted = CryptoJS.AES.decrypt(string, secretkey, {iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7})
         try {
             return decrypted.toString(CryptoJS.enc.Utf8)
         } catch(e) {
